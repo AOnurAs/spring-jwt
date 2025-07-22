@@ -17,39 +17,39 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter{
-	
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
 	@Autowired
 	private JwtService jwtService;
-	
+
 	@Autowired
 	private UserDetailsService userDetailsService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		
-		//Bearer ==token==
+
+		// Bearer ==token==
 		String header;
 		String token;
 		String username;
 		header = request.getHeader("Authorization");
-		
-		if(header == null) {
+
+		if (header == null) {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		
+
 		token = header.substring(7);
 		try {
 			username = jwtService.getUsernameByToken(token);
-			if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-				if(userDetails != null && jwtService.isTokenExpired(token)) {
+				if (userDetails != null && jwtService.isTokenExpired(token)) {
 					// user to the SecurityContext
-					UsernamePasswordAuthenticationToken authentication = 
-								new UsernamePasswordAuthenticationToken(username, null, userDetails.getAuthorities());
-					
+					UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+							username, null, userDetails.getAuthorities());
+
 					authentication.setDetails(userDetails);
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}
@@ -59,9 +59,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		} catch (Exception e) {
 			System.out.println("An error occured : " + e.getMessage());
 		}
-		
+
 		filterChain.doFilter(request, response);
-		
+
 	}
 
 }

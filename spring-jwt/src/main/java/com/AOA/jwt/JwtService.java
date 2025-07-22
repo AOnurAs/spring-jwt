@@ -22,13 +22,13 @@ public class JwtService {
 	
 	public String generateToken(UserDetails userDetails) {
 		
-		Map <String, String> claimsMap = new HashMap<>();
-		claimsMap.put("role", "Admin");
+//		Map <String, String> claimsMap = new HashMap<>();
+//		claimsMap.put("role", "Admin");
 		
 		return Jwts.builder()
 		.setSubject(userDetails.getUsername())
 		.setIssuedAt(new Date())
-		.setClaims(claimsMap)
+//		.setClaims(claimsMap)
 		.setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*2)) // 1000 milisecond (= 1 second) * 60 ( = a minute) * 60 ( = an hour) * 2 ( two hours)
 		.signWith(getKey(), SignatureAlgorithm.HS256)
 		.compact();

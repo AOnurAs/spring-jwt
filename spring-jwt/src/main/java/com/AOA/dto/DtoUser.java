@@ -1,4 +1,4 @@
-package com.AOA.config.dto;
+package com.AOA.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
