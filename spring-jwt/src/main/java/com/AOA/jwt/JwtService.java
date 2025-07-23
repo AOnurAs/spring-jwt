@@ -22,25 +22,37 @@ public class JwtService {
 	
 	public String generateToken(UserDetails userDetails) {
 		
-//		Map <String, String> claimsMap = new HashMap<>();
-//		claimsMap.put("role", "Admin");
+		Map <String, Object> claimsMap = new HashMap<>();
+		claimsMap.put("role", "Admin");
 		
 		return Jwts.builder()
 		.setSubject(userDetails.getUsername())
+		.addClaims(claimsMap)
 		.setIssuedAt(new Date())
-//		.setClaims(claimsMap)
 		.setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*2)) // 1000 milisecond (= 1 second) * 60 ( = a minute) * 60 ( = an hour) * 2 ( two hours)
 		.signWith(getKey(), SignatureAlgorithm.HS256)
 		.compact();
 	}
 	
-	public <T> T exportToken(String token, Function<Claims, T> claimsFunction){
+	public Claims getClaims(String token) {
 		Claims claims = Jwts
-		.parserBuilder()
-		.setSigningKey(getKey())
-		.build()
-		.parseClaimsJws(token)
-		.getBody();
+				.parserBuilder()
+				.setSigningKey(getKey())
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
+				
+		return claims;
+	}
+	
+	
+	public Object getClaimByKey(String token, String key) {
+		Claims claims = getClaims(token);
+		return claims.get(key);
+	}
+	
+	public <T> T exportToken(String token, Function<Claims, T> claimsFunction){
+		Claims claims = getClaims(token);
 		
 		return claimsFunction.apply(claims);
 	}
