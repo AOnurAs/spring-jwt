@@ -1,6 +1,8 @@
 package com.AOA.service.impl;
 
+import java.sql.Timestamp;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,9 @@ import com.AOA.dto.DtoUser;
 import com.AOA.jwt.AuthRequest;
 import com.AOA.jwt.AuthResponse;
 import com.AOA.jwt.JwtService;
+import com.AOA.model.RefreshToken;
 import com.AOA.model.User;
+import com.AOA.repository.RefreshTokenRepository;
 import com.AOA.repository.UserRepository;
 import com.AOA.service.IAuthService;
 
@@ -31,6 +35,18 @@ public class AuthServiceImpl implements IAuthService{
 	
 	@Autowired
 	private JwtService jwtService;
+	
+	@Autowired
+	private RefreshTokenRepository refreshTokenRepository;
+	
+	public RefreshToken createRefreshToken(User user) {
+		RefreshToken refreshToken = new RefreshToken();
+		refreshToken.setRefreshToken(UUID.randomUUID().toString());
+		refreshToken.setExpireDate(new Timestamp(System.currentTimeMillis() + 1000 * 60 * 60 * 4));
+		refreshToken.setUser(user);
+		
+		return refreshToken;
+	}
 
 	@Override
 	public AuthResponse authenticate(AuthRequest request) {
@@ -45,9 +61,12 @@ public class AuthServiceImpl implements IAuthService{
 				System.out.println("Username couldnt be found");		
 				return null;
 			}
-			String token = jwtService.generateToken(optional.get());
-			return new AuthResponse(token);
-			
+			String accessToken = jwtService.generateToken(optional.get());
+			RefreshToken refreshToken = createRefreshToken(optional.get());
+			refreshTokenRepository.save(refreshToken);
+					;
+			return new AuthResponse(accessToken, refreshToken.getRefreshToken());
+					
 		} catch (Exception e) {
 			System.out.println("Wrong password - username combination (e : " + e.getMessage() + ")");
 		}

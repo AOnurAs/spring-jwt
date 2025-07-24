@@ -9,7 +9,9 @@ import com.AOA.controller.IRestAuthController;
 import com.AOA.dto.DtoUser;
 import com.AOA.jwt.AuthRequest;
 import com.AOA.jwt.AuthResponse;
+import com.AOA.jwt.RefreshTokenRequest;
 import com.AOA.service.IAuthService;
+import com.AOA.service.IRefreshTokenService;
 
 import jakarta.validation.Valid;
 
@@ -18,6 +20,9 @@ public class RestAuthControllerImpl implements IRestAuthController {
 	
 	@Autowired
 	private IAuthService authService;
+	
+	@Autowired
+	private IRefreshTokenService refreshTokenService;
 
 	@PostMapping("/register")
 	@Override
@@ -29,6 +34,12 @@ public class RestAuthControllerImpl implements IRestAuthController {
 	@Override
 	public AuthResponse authenticate(@Valid @RequestBody AuthRequest request) {
 		return authService.authenticate(request);
+	}
+	
+	@PostMapping("/refreshToken")
+	@Override
+	public AuthResponse refreshToken(@RequestBody RefreshTokenRequest request) {
+		return refreshTokenService.refreshToken(request);
 	}
 	
 	
