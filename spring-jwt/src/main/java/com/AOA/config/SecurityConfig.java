@@ -7,7 +7,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -21,6 +20,11 @@ public class SecurityConfig {
 	public static final String AUTHENTICATE = "/authenticate";
 	public static final String REGISTER = "/register";
 	public static final String REFRESH_TOKEN = "/refreshToken";
+	public static final String[] SWAGEER_PATHS = {
+			"/swagger-ui/**",
+			"/v3/api-docs/**",
+			"/swagger-ui.html"
+	};
 	
 	@Autowired
 	private AuthenticationProvider authenticationProvider;
@@ -35,8 +39,8 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 		.authorizeHttpRequests(request -> 
-			request.requestMatchers(AUTHENTICATE, REGISTER, REFRESH_TOKEN)
-			.permitAll()
+			request.requestMatchers(AUTHENTICATE, REGISTER, REFRESH_TOKEN).permitAll()
+			.requestMatchers(SWAGEER_PATHS).permitAll()
 			.anyRequest()
 			.authenticated())
 		.exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
